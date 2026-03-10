@@ -6,6 +6,8 @@ import CustomerList from "./pages/customers/CustomerList";
 import CustomerForm from "./pages/customers/CustomerForm";
 import CarList from "./pages/cars/CarList";
 import CarForm from "./pages/cars/CarForm";
+import RentalList from "./pages/rentals/RentalList";
+import RentalForm from "./pages/rentals/RentalForm";
 
 const theme = createTheme();
 
@@ -23,6 +25,8 @@ export default function App() {
             <Route path="/cars" element={<CarList />} />
             <Route path="/cars/new" element={<CarForm />} />
             <Route path="/cars/:id" element={<CarForm />} />
+            <Route path="/rentals" element={<RentalList />} />
+            <Route path="/rentals/new" element={<RentalForm />} />
           </Route>
         </Routes>
       </BrowserRouter>
