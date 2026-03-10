@@ -23,7 +23,7 @@ API documentation (Scalar UI): `http://localhost:5000/scalar/v1`
 To populate the database with sample data:
 
 ```bash
-docker compose exec db psql -U postgres -d autoverleih -f /dev/stdin < scripts/seed.sql
+docker compose exec -T db psql -U postgres -d autoverleih < scripts/seed.sql
 ```
 
 ### Stop

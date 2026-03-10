@@ -18,10 +18,30 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<CarService>();
 builder.Services.AddScoped<RentalService>();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+    });
+}
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors();
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
