@@ -6,6 +6,8 @@ public record CreateRentalRequest(
     DateTimeOffset StartDate,
     DateTimeOffset EndDate);
 
+public record ReturnRentalRequest(int KilometersDriven);
+
 public record RentalResponse(
     Guid Id,
     Guid CustomerId,
@@ -14,4 +16,5 @@ public record RentalResponse(
     DateTimeOffset EndDate,
     DateTimeOffset? ReturnedAt,
     string Status,
+    int? KilometersDriven,
     DateTimeOffset CreatedAt);

@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   TextField,
   Typography,
   IconButton,
@@ -75,16 +76,22 @@ export default function CarList() {
     { field: "licensePlate", headerName: "License Plate", flex: 1 },
     { field: "year", headerName: "Year", width: 100 },
     {
-      field: "isAvailable",
-      headerName: "Available",
-      width: 120,
-      valueFormatter: (value: boolean) => (value ? "Yes" : "No"),
+      field: "totalKilometers",
+      headerName: "Total KM",
+      width: 130,
+      valueFormatter: (value: number) => `${value.toLocaleString()} km`,
     },
     {
-      field: "createdAt",
-      headerName: "Created",
-      flex: 1,
-      valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
+      field: "isAvailable",
+      headerName: "Available",
+      width: 130,
+      renderCell: (params) => (
+        <Chip
+          label={params.value ? "Available" : "Rented"}
+          size="small"
+          color={params.value ? "success" : "error"}
+        />
+      ),
     },
     {
       field: "actions",

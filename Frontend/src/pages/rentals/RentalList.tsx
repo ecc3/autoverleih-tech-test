@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   TextField,
   Typography,
   IconButton,
@@ -12,6 +13,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
@@ -29,16 +32,27 @@ type EnrichedRental = RentalResponse & {
   carLabel: string;
 };
 
+const statusChipProps: Record<
+  string,
+  { color: "info" | "success" | "error" | "default" }
+> = {
+  Active: { color: "info" },
+  Completed: { color: "success" },
+  Cancelled: { color: "error" },
+};
+
 export default function RentalList() {
   const navigate = useNavigate();
   const [rentals, setRentals] = useState<EnrichedRental[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [activeOnly, setActiveOnly] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionTarget, setActionTarget] = useState<{
     rental: EnrichedRental;
     type: "return" | "cancel";
   } | null>(null);
+  const [returnKm, setReturnKm] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -49,18 +63,16 @@ export default function RentalList() {
         customerService.getAll(),
         carService.getAll(),
       ]);
-      const enriched = rentalsData.map((r) => ({
-        ...r,
-        customerName:
-          custs.find((c) => c.id === r.customerId)?.firstName +
-          " " +
-          custs.find((c) => c.id === r.customerId)?.lastName,
-        carLabel:
-          carsData.find((c) => c.id === r.carId)?.make +
-          " " +
-          carsData.find((c) => c.id === r.carId)?.model,
-      }));
-      setRentals(enriched as EnrichedRental[]);
+      const enriched = rentalsData.map((r) => {
+        const cust = custs.find((c) => c.id === r.customerId);
+        const car = carsData.find((c) => c.id === r.carId);
+        return {
+          ...r,
+          customerName: cust ? `${cust.firstName} ${cust.lastName}` : "Unknown",
+          carLabel: car ? `${car.make} ${car.model}` : "Unknown",
+        };
+      });
+      setRentals(enriched);
     } catch {
       setError("Failed to load rentals");
     } finally {
@@ -73,29 +85,46 @@ export default function RentalList() {
   }, []);
 
   const filteredRentals = useMemo(() => {
-    if (!search) return rentals;
-    const lower = search.toLowerCase();
-    return rentals.filter(
-      (r) =>
-        r.customerName.toLowerCase().includes(lower) ||
-        r.carLabel.toLowerCase().includes(lower) ||
-        r.status.toLowerCase().includes(lower),
-    );
-  }, [rentals, search]);
+    let result = rentals;
+    if (activeOnly) {
+      result = result.filter((r) => r.status === "Active");
+    }
+    if (search) {
+      const lower = search.toLowerCase();
+      result = result.filter(
+        (r) =>
+          r.customerName.toLowerCase().includes(lower) ||
+          r.carLabel.toLowerCase().includes(lower) ||
+          r.status.toLowerCase().includes(lower),
+      );
+    }
+    return result;
+  }, [rentals, search, activeOnly]);
 
   const handleAction = async () => {
     if (!actionTarget) return;
     try {
       if (actionTarget.type === "return") {
-        await rentalService.returnRental(actionTarget.rental.id);
+        const km = parseInt(returnKm, 10);
+        if (!km || km <= 0) return;
+        await rentalService.returnRental(actionTarget.rental.id, km);
       } else {
         await rentalService.cancelRental(actionTarget.rental.id);
       }
       setActionTarget(null);
+      setReturnKm("");
       fetchData();
     } catch {
       setError("Failed to perform action");
     }
+  };
+
+  const handleOpenAction = (
+    rental: EnrichedRental,
+    type: "return" | "cancel",
+  ) => {
+    setActionTarget({ rental, type });
+    setReturnKm("");
   };
 
   const columns: GridColDef[] = [
@@ -113,37 +142,55 @@ export default function RentalList() {
       flex: 1,
       valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
     },
-    { field: "status", headerName: "Status", width: 120 },
+    {
+      field: "kilometersDriven",
+      headerName: "KM Driven",
+      width: 120,
+      valueFormatter: (value: number | null) =>
+        value != null ? `${value.toLocaleString()} km` : "\u2014",
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      width: 130,
+      renderCell: (params) => {
+        const status = params.value as string;
+        const props = statusChipProps[status] ?? { color: "default" as const };
+        return <Chip label={status} size="small" color={props.color} />;
+      },
+    },
     {
       field: "actions",
       headerName: "Actions",
-      width: 160,
+      width: 120,
       sortable: false,
       renderCell: (params) => {
         const rental = params.row as EnrichedRental;
+        if (rental.status !== "Active") return null;
         return (
           <>
-            {rental.status === "Active" && (
-              <>
-                <IconButton
-                  size="small"
-                  onClick={() => setActionTarget({ rental, type: "return" })}
-                >
-                  <CheckCircleIcon />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={() => setActionTarget({ rental, type: "cancel" })}
-                >
-                  <CancelIcon />
-                </IconButton>
-              </>
-            )}
+            <IconButton
+              size="small"
+              color="success"
+              onClick={() => handleOpenAction(rental, "return")}
+            >
+              <CheckCircleIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => handleOpenAction(rental, "cancel")}
+            >
+              <CancelIcon />
+            </IconButton>
           </>
         );
       },
     },
   ];
+
+  const isReturnDialog = actionTarget?.type === "return";
+  const returnKmValid = isReturnDialog ? parseInt(returnKm, 10) > 0 : true;
 
   return (
     <Box>
@@ -164,20 +211,32 @@ export default function RentalList() {
         </Alert>
       )}
 
-      <TextField
-        placeholder="Search by customer, car or status..."
-        size="small"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
-            ),
-          },
-        }}
-        sx={{ mb: 2, width: 300 }}
-      />
+      <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
+        <TextField
+          placeholder="Search by customer, car or status..."
+          size="small"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+              ),
+            },
+          }}
+          sx={{ width: 300 }}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={activeOnly}
+              onChange={(e) => setActiveOnly(e.target.checked)}
+              size="small"
+            />
+          }
+          label="Active only"
+        />
+      </Box>
 
       <DataGrid
         rows={filteredRentals}
@@ -190,19 +249,36 @@ export default function RentalList() {
 
       <Dialog open={!!actionTarget} onClose={() => setActionTarget(null)}>
         <DialogTitle>
-          {actionTarget?.type === "return" ? "Return Rental" : "Cancel Rental"}
+          {isReturnDialog ? "Return Rental" : "Cancel Rental"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to {actionTarget?.type} the rental for{" "}
-            {actionTarget?.rental.carLabel} by{" "}
-            {actionTarget?.rental.customerName}?
+            {isReturnDialog
+              ? `${actionTarget?.rental.carLabel} rented by ${actionTarget?.rental.customerName}`
+              : `Are you sure you want to cancel the rental for ${actionTarget?.rental.carLabel} by ${actionTarget?.rental.customerName}?`}
           </DialogContentText>
+          {isReturnDialog && (
+            <TextField
+              autoFocus
+              label="Kilometers Driven"
+              type="number"
+              fullWidth
+              required
+              value={returnKm}
+              onChange={(e) => setReturnKm(e.target.value)}
+              sx={{ mt: 2 }}
+              slotProps={{ htmlInput: { min: 1 } }}
+            />
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setActionTarget(null)}>No</Button>
-          <Button onClick={handleAction} color="primary">
-            Yes
+          <Button onClick={() => setActionTarget(null)}>Cancel</Button>
+          <Button
+            onClick={handleAction}
+            color={isReturnDialog ? "primary" : "error"}
+            disabled={isReturnDialog && !returnKmValid}
+          >
+            {isReturnDialog ? "Confirm Return" : "Yes, Cancel"}
           </Button>
         </DialogActions>
       </Dialog>

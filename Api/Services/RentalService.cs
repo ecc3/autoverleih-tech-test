@@ -54,8 +54,11 @@ public class RentalService(AppDbContext context)
         return Result<RentalResponse>.Success(MapToResponse(rental));
     }
 
-    public async Task<Result<RentalResponse>> ReturnAsync(Guid id)
+    public async Task<Result<RentalResponse>> ReturnAsync(Guid id, int kilometersDriven)
     {
+        if (kilometersDriven <= 0)
+            return Result<RentalResponse>.Failure("Kilometers driven must be greater than zero.", ResultErrorType.ValidationError);
+
         var rental = await context.Rentals.FindAsync(id);
         if (rental is null)
             return Result<RentalResponse>.Failure("Rental not found.", ResultErrorType.NotFound);
@@ -69,6 +72,7 @@ public class RentalService(AppDbContext context)
 
         rental.Status = RentalStatus.Completed;
         rental.ReturnedAt = DateTimeOffset.UtcNow;
+        rental.KilometersDriven = kilometersDriven;
         car.IsAvailable = true;
 
         await context.SaveChangesAsync();
@@ -100,5 +104,5 @@ public class RentalService(AppDbContext context)
     internal static RentalResponse MapToResponse(Rental rental) =>
         new(rental.Id, rental.CustomerId, rental.CarId,
             rental.StartDate, rental.EndDate, rental.ReturnedAt,
-            rental.Status.ToString(), rental.CreatedAt);
+            rental.Status.ToString(), rental.KilometersDriven, rental.CreatedAt);
 }

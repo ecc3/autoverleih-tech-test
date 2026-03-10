@@ -156,7 +156,7 @@ public class RentalServiceTests
         var created = await _service.CreateAsync(new CreateRentalRequest(customer.Id, car.Id,
             DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7)));
 
-        var result = await _service.ReturnAsync(created.Value!.Id);
+        var result = await _service.ReturnAsync(created.Value!.Id, 500);
 
         Assert.True(result.IsSuccess);
         Assert.Equal("Completed", result.Value!.Status);
@@ -173,9 +173,9 @@ public class RentalServiceTests
         var car = await SeedCar();
         var created = await _service.CreateAsync(new CreateRentalRequest(customer.Id, car.Id,
             DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7)));
-        await _service.ReturnAsync(created.Value!.Id);
+        await _service.ReturnAsync(created.Value!.Id, 500);
 
-        var result = await _service.ReturnAsync(created.Value!.Id);
+        var result = await _service.ReturnAsync(created.Value!.Id, 500);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(ResultErrorType.Conflict, result.ErrorType);
@@ -184,7 +184,7 @@ public class RentalServiceTests
     [Fact]
     public async Task Return_NonExistent_ReturnsNotFound()
     {
-        var result = await _service.ReturnAsync(Guid.NewGuid());
+        var result = await _service.ReturnAsync(Guid.NewGuid(), 500);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(ResultErrorType.NotFound, result.ErrorType);
@@ -230,5 +230,47 @@ public class RentalServiceTests
 
         Assert.False(result.IsSuccess);
         Assert.Equal(ResultErrorType.NotFound, result.ErrorType);
+    }
+
+    [Fact]
+    public async Task Return_ZeroKilometers_ReturnsValidationError()
+    {
+        var customer = await SeedCustomer();
+        var car = await SeedCar();
+        var created = await _service.CreateAsync(new CreateRentalRequest(customer.Id, car.Id,
+            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7)));
+
+        var result = await _service.ReturnAsync(created.Value!.Id, 0);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ResultErrorType.ValidationError, result.ErrorType);
+    }
+
+    [Fact]
+    public async Task Return_NegativeKilometers_ReturnsValidationError()
+    {
+        var customer = await SeedCustomer();
+        var car = await SeedCar();
+        var created = await _service.CreateAsync(new CreateRentalRequest(customer.Id, car.Id,
+            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7)));
+
+        var result = await _service.ReturnAsync(created.Value!.Id, -100);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ResultErrorType.ValidationError, result.ErrorType);
+    }
+
+    [Fact]
+    public async Task Return_ActiveRental_SetsKilometersDriven()
+    {
+        var customer = await SeedCustomer();
+        var car = await SeedCar();
+        var created = await _service.CreateAsync(new CreateRentalRequest(customer.Id, car.Id,
+            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7)));
+
+        var result = await _service.ReturnAsync(created.Value!.Id, 450);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(450, result.Value!.KilometersDriven);
     }
 }

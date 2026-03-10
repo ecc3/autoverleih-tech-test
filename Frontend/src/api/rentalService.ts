@@ -11,9 +11,9 @@ export const rentalService = {
   create: (data: CreateRentalRequest) =>
     apiClient.post<RentalResponse>("/rentals", data).then((res) => res.data),
 
-  returnRental: (id: string) =>
+  returnRental: (id: string, kilometersDriven: number) =>
     apiClient
-      .post<RentalResponse>(`/rentals/${id}/return`)
+      .post<RentalResponse>(`/rentals/${id}/return`, { kilometersDriven })
       .then((res) => res.data),
 
   cancelRental: (id: string) =>

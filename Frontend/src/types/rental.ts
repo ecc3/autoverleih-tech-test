@@ -13,5 +13,6 @@ export interface RentalResponse {
   endDate: string;
   returnedAt: string | null;
   status: string;
+  kilometersDriven: number | null;
   createdAt: string;
 }

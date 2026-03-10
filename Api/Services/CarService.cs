@@ -25,13 +25,22 @@ public class CarService(AppDbContext context)
         context.Cars.Add(car);
         await context.SaveChangesAsync();
 
-        return Result<CarResponse>.Success(MapToResponse(car));
+        return Result<CarResponse>.Success(MapToResponse(car, 0));
     }
 
     public async Task<Result<List<CarResponse>>> GetAllAsync()
     {
         var cars = await context.Cars.ToListAsync();
-        return Result<List<CarResponse>>.Success(cars.Select(MapToResponse).ToList());
+        var carIds = cars.Select(c => c.Id).ToList();
+
+        var kmBycar = await context.Rentals
+            .Where(r => carIds.Contains(r.CarId) && r.Status == RentalStatus.Completed && r.KilometersDriven != null)
+            .GroupBy(r => r.CarId)
+            .Select(g => new { CarId = g.Key, TotalKm = g.Sum(r => r.KilometersDriven!.Value) })
+            .ToDictionaryAsync(x => x.CarId, x => x.TotalKm);
+
+        return Result<List<CarResponse>>.Success(
+            cars.Select(c => MapToResponse(c, kmBycar.GetValueOrDefault(c.Id, 0))).ToList());
     }
 
     public async Task<Result<CarResponse>> GetByIdAsync(Guid id)
@@ -40,7 +49,11 @@ public class CarService(AppDbContext context)
         if (car is null)
             return Result<CarResponse>.Failure("Car not found.", ResultErrorType.NotFound);
 
-        return Result<CarResponse>.Success(MapToResponse(car));
+        var totalKm = await context.Rentals
+            .Where(r => r.CarId == id && r.Status == RentalStatus.Completed && r.KilometersDriven != null)
+            .SumAsync(r => r.KilometersDriven!.Value);
+
+        return Result<CarResponse>.Success(MapToResponse(car, totalKm));
     }
 
     public async Task<Result<CarResponse>> UpdateAsync(Guid id, UpdateCarRequest request)
@@ -59,7 +72,11 @@ public class CarService(AppDbContext context)
 
         await context.SaveChangesAsync();
 
-        return Result<CarResponse>.Success(MapToResponse(car));
+        var totalKm = await context.Rentals
+            .Where(r => r.CarId == id && r.Status == RentalStatus.Completed && r.KilometersDriven != null)
+            .SumAsync(r => r.KilometersDriven!.Value);
+
+        return Result<CarResponse>.Success(MapToResponse(car, totalKm));
     }
 
     public async Task<Result<bool>> DeleteAsync(Guid id)
@@ -80,7 +97,7 @@ public class CarService(AppDbContext context)
         return Result<bool>.Success(true);
     }
 
-    internal static CarResponse MapToResponse(Car car) =>
+    internal static CarResponse MapToResponse(Car car, int totalKilometers) =>
         new(car.Id, car.Make, car.Model, car.LicensePlate,
-            car.Year, car.IsAvailable, car.CreatedAt);
+            car.Year, car.IsAvailable, totalKilometers, car.CreatedAt);
 }

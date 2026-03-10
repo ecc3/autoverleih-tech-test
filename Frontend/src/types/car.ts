@@ -19,5 +19,6 @@ export interface CarResponse {
   licensePlate: string;
   year: number;
   isAvailable: boolean;
+  totalKilometers: number;
   createdAt: string;
 }

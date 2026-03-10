@@ -29,9 +29,9 @@ public static class RentalEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : EndpointHelper.MapError(result);
         });
 
-        group.MapPost("/{id:guid}/return", async (Guid id, RentalService service) =>
+        group.MapPost("/{id:guid}/return", async (Guid id, ReturnRentalRequest request, RentalService service) =>
         {
-            var result = await service.ReturnAsync(id);
+            var result = await service.ReturnAsync(id, request.KilometersDriven);
             return result.IsSuccess ? Results.Ok(result.Value) : EndpointHelper.MapError(result);
         });
 

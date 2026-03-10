@@ -19,4 +19,5 @@ public record CarResponse(
     string LicensePlate,
     int Year,
     bool IsAvailable,
+    int TotalKilometers,
     DateTimeOffset CreatedAt);
