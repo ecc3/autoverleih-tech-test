@@ -1,9 +1,9 @@
-using API.Data;
-using API.DTOs;
-using API.Models;
+using Api.Data;
+using Api.DTOs;
+using Api.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Services;
+namespace Api.Services;
 
 public class RentalService(AppDbContext context)
 {

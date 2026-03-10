@@ -1,4 +1,4 @@
-namespace API.Services;
+namespace Api.Services;
 
 public enum ResultErrorType
 {

@@ -1,4 +1,4 @@
-namespace API.DTOs;
+namespace Api.DTOs;
 
 public record CreateCarRequest(
     string Make,

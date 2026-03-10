@@ -1,6 +1,6 @@
-using API.Services;
+using Api.Services;
 
-namespace API.Endpoints;
+namespace Api.Endpoints;
 
 public static class EndpointHelper
 {

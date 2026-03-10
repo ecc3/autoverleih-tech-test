@@ -1,7 +1,7 @@
-using API.DTOs;
-using API.Services;
+using Api.DTOs;
+using Api.Services;
 
-namespace API.Endpoints;
+namespace Api.Endpoints;
 
 public static class CarEndpoints
 {
