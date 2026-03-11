@@ -21,12 +21,14 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTranslation } from "react-i18next";
+import { useLocale } from "../../i18n/useLocale";
 import { carService } from "../../api/carService";
 import type { CarResponse } from "../../types/car";
 
 export default function CarList() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const locale = useLocale();
   const [cars, setCars] = useState<CarResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -82,7 +84,7 @@ export default function CarList() {
       headerName: t("cars.totalKm"),
       width: 130,
       valueFormatter: (value: number) =>
-        value != null ? `${value.toLocaleString()} km` : "0 km",
+        value != null ? `${value.toLocaleString(locale)} km` : "0 km",
     },
     {
       field: "isAvailable",

@@ -23,6 +23,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useTranslation } from "react-i18next";
+import { useLocale } from "../../i18n/useLocale";
 import { rentalService } from "../../api/rentalService";
 import { customerService } from "../../api/customerService";
 import { carService } from "../../api/carService";
@@ -45,6 +46,7 @@ const statusChipProps: Record<
 export default function RentalList() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const locale = useLocale();
   const [rentals, setRentals] = useState<EnrichedRental[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -140,20 +142,20 @@ export default function RentalList() {
       field: "startDate",
       headerName: t("rentals.start"),
       flex: 1,
-      valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
+      valueFormatter: (value: string) => new Date(value).toLocaleDateString(locale),
     },
     {
       field: "endDate",
       headerName: t("rentals.end"),
       flex: 1,
-      valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
+      valueFormatter: (value: string) => new Date(value).toLocaleDateString(locale),
     },
     {
       field: "kilometersDriven",
       headerName: t("rentals.kmDriven"),
       width: 120,
       valueFormatter: (value: number | null) =>
-        value != null ? `${value.toLocaleString()} km` : "\u2014",
+        value != null ? `${value.toLocaleString(locale)} km` : "\u2014",
     },
     {
       field: "status",

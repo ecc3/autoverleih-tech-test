@@ -20,12 +20,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
+import { useLocale } from '../../i18n/useLocale';
 import { customerService } from '../../api/customerService';
 import type { CustomerResponse } from '../../types/customer';
 
 export default function CustomerList() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const locale = useLocale();
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -84,7 +86,7 @@ export default function CustomerList() {
       field: 'createdAt',
       headerName: t('customers.created'),
       flex: 1,
-      valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
+      valueFormatter: (value: string) => new Date(value).toLocaleDateString(locale),
     },
     {
       field: 'actions',

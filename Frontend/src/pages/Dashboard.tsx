@@ -17,6 +17,7 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import SpeedIcon from "@mui/icons-material/Speed";
 import { useTranslation } from "react-i18next";
+import { useLocale } from "../i18n/useLocale";
 import { customerService } from "../api/customerService";
 import { carService } from "../api/carService";
 import { rentalService } from "../api/rentalService";
@@ -42,6 +43,7 @@ interface Stats {
 
 export default function Dashboard() {
   const { t } = useTranslation();
+  const locale = useLocale();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,7 +70,7 @@ export default function Dashboard() {
             id: r.id,
             carLabel: carMap.get(r.carId) ?? t("common.unknown"),
             customerName: custMap.get(r.customerId) ?? t("common.unknown"),
-            startDate: new Date(r.startDate).toLocaleDateString(),
+            startDate: r.startDate,
             status: r.status,
           }));
 
@@ -123,7 +125,7 @@ export default function Dashboard() {
     },
     {
       label: t("dashboard.totalKmDriven"),
-      value: stats!.totalKm.toLocaleString(),
+      value: stats!.totalKm.toLocaleString(locale),
       icon: <SpeedIcon sx={{ fontSize: 40, color: "info.main" }} />,
       path: "/cars",
     },
@@ -192,7 +194,7 @@ export default function Dashboard() {
               >
                 <ListItemText
                   primary={`${r.carLabel} — ${t("dashboard.rentedBy")} ${r.customerName}`}
-                  secondary={`${r.startDate} · ${r.status}`}
+                  secondary={`${new Date(r.startDate).toLocaleDateString(locale)} · ${r.status}`}
                 />
               </ListItemButton>
             ))}
