@@ -18,7 +18,16 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to Autoverleih admin. Select a section from the sidebar."
+    "totalCustomers": "Total Customers",
+    "totalCars": "Total Cars",
+    "currentlyRented": "Currently Rented",
+    "availableCars": "Available Cars",
+    "activeRentals": "Active Rentals",
+    "totalKmDriven": "Total KM Driven",
+    "recentRentals": "Recent Rentals",
+    "noRecentRentals": "No recent rentals",
+    "failedToLoad": "Failed to load dashboard data",
+    "rentedBy": "rented by"
   },
   "cars": {
     "title": "Cars",

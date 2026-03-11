@@ -18,7 +18,16 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Willkommen bei Autoverleih Admin. Wählen Sie einen Bereich aus der Seitenleiste."
+    "totalCustomers": "Kunden gesamt",
+    "totalCars": "Fahrzeuge gesamt",
+    "currentlyRented": "Aktuell vermietet",
+    "availableCars": "Verfügbare Fahrzeuge",
+    "activeRentals": "Aktive Vermietungen",
+    "totalKmDriven": "Gefahrene KM gesamt",
+    "recentRentals": "Letzte Vermietungen",
+    "noRecentRentals": "Keine aktuellen Vermietungen",
+    "failedToLoad": "Dashboard-Daten konnten nicht geladen werden",
+    "rentedBy": "gemietet von"
   },
   "cars": {
     "title": "Fahrzeuge",
