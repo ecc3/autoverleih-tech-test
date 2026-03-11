@@ -11,14 +11,14 @@ DELETE FROM "Customers";
 
 -- Customers
 INSERT INTO "Customers" ("Id", "FirstName", "LastName", "Email", "PhoneNumber", "CreatedAt") VALUES
-('a1b2c3d4-0001-4000-8000-000000000001', 'Anna',    'Müller',    'anna.mueller@example.de',    '+49 170 1234567', NOW() - INTERVAL '90 days'),
-('a1b2c3d4-0001-4000-8000-000000000002', 'Thomas',  'Schmidt',   'thomas.schmidt@example.de',  '+49 171 2345678', NOW() - INTERVAL '85 days'),
-('a1b2c3d4-0001-4000-8000-000000000003', 'Laura',   'Weber',     'laura.weber@example.de',     '+49 172 3456789', NOW() - INTERVAL '60 days'),
-('a1b2c3d4-0001-4000-8000-000000000004', 'Markus',  'Fischer',   'markus.fischer@example.de',  '+49 173 4567890', NOW() - INTERVAL '45 days'),
-('a1b2c3d4-0001-4000-8000-000000000005', 'Sophie',  'Wagner',    'sophie.wagner@example.de',   NULL,              NOW() - INTERVAL '30 days'),
-('a1b2c3d4-0001-4000-8000-000000000006', 'Jan',     'Becker',    'jan.becker@example.de',      '+49 175 6789012', NOW() - INTERVAL '20 days'),
-('a1b2c3d4-0001-4000-8000-000000000007', 'Lisa',    'Hoffmann',  'lisa.hoffmann@example.de',   '+49 176 7890123', NOW() - INTERVAL '10 days'),
-('a1b2c3d4-0001-4000-8000-000000000008', 'Felix',   'Braun',     'felix.braun@example.de',     NULL,              NOW() - INTERVAL '5 days');
+('a1b2c3d4-0001-4000-8000-000000000001', 'Anna',    'Müller',    'anna.mueller@example.at',    '+43 170 1234567', NOW() - INTERVAL '90 days'),
+('a1b2c3d4-0001-4000-8000-000000000002', 'Thomas',  'Schmidt',   'thomas.schmidt@example.at',  '+43 171 2345678', NOW() - INTERVAL '85 days'),
+('a1b2c3d4-0001-4000-8000-000000000003', 'Laura',   'Weber',     'laura.weber@example.at',     '+43 172 3456789', NOW() - INTERVAL '60 days'),
+('a1b2c3d4-0001-4000-8000-000000000004', 'Markus',  'Fischer',   'markus.fischer@example.at',  '+43 173 4567890', NOW() - INTERVAL '45 days'),
+('a1b2c3d4-0001-4000-8000-000000000005', 'Sophie',  'Wagner',    'sophie.wagner@example.at',   NULL,              NOW() - INTERVAL '30 days'),
+('a1b2c3d4-0001-4000-8000-000000000006', 'Jan',     'Becker',    'jan.becker@example.at',      '+43 175 6789012', NOW() - INTERVAL '20 days'),
+('a1b2c3d4-0001-4000-8000-000000000007', 'Lisa',    'Hoffmann',  'lisa.hoffmann@example.at',   '+43 176 7890123', NOW() - INTERVAL '10 days'),
+('a1b2c3d4-0001-4000-8000-000000000008', 'Felix',   'Braun',     'felix.braun@example.at',     NULL,              NOW() - INTERVAL '5 days');
 
 -- Cars
 INSERT INTO "Cars" ("Id", "Make", "Model", "LicensePlate", "Year", "IsAvailable", "CreatedAt") VALUES
