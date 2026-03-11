@@ -1,6 +1,6 @@
-# Autoverleih API
+# Autoverleih
 
-A car rental management REST API built with .NET 10 minimal APIs and PostgreSQL.
+A car rental management system with a .NET 10 REST API and a React frontend.
 
 ## Getting Started
 
@@ -14,9 +14,9 @@ A car rental management REST API built with .NET 10 minimal APIs and PostgreSQL.
 docker compose up -d
 ```
 
-The API will be available at `http://localhost:5000`.
-
-API documentation (Scalar UI): `http://localhost:5000/scalar/v1`
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:5000`
+- API docs (Scalar UI): `http://localhost:5000/scalar/v1`
 
 ### Seed the Database
 
@@ -31,6 +31,18 @@ docker compose exec -T db psql -U postgres -d autoverleih < scripts/seed.sql
 ```bash
 docker compose down       # keep data
 docker compose down -v    # wipe database
+```
+
+### Local Development
+
+The frontend container mounts `Frontend/src` as a volume, so changes to source files are reflected immediately via Vite HMR.
+
+To run the frontend outside Docker:
+
+```bash
+cd Frontend
+npm install
+npm run dev
 ```
 
 ## API Endpoints
@@ -68,18 +80,31 @@ docker compose down -v    # wipe database
 ## Project Structure
 
 ```
+Frontend/
+├── src/
+│   ├── api/          # Axios client and service modules
+│   ├── components/   # Shared components (Layout)
+│   ├── pages/        # Page components (customers, cars, rentals)
+│   └── types/        # TypeScript type definitions
+
 Api/
-├── Models/       # Database entities (Customer, Car, Rental)
-├── DTOs/         # Request/response records
-├── Endpoints/    # Minimal API endpoint definitions
-├── Services/     # Business logic
-├── Data/         # EF Core DbContext and migrations
-└── Program.cs    # Application entry point
+├── Models/           # Database entities (Customer, Car, Rental)
+├── DTOs/             # Request/response records
+├── Endpoints/        # Minimal API endpoint definitions
+├── Services/         # Business logic
+├── Data/             # EF Core DbContext and migrations
+└── Program.cs        # Application entry point
+
+Api.Tests/
+└── Services/         # xUnit service-layer tests
 ```
 
 ## Tech Stack
 
-- **.NET 10** (minimal APIs)
+- **React 19** with TypeScript (frontend)
+- **Vite** (build tool)
+- **Material UI 7** (component library)
+- **.NET 10** minimal APIs (backend)
 - **Entity Framework Core 10** (ORM)
 - **PostgreSQL 17** (database)
 - **Scalar** (API documentation)
