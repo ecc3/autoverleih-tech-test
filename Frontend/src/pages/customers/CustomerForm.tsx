@@ -9,12 +9,14 @@ import {
   CircularProgress,
 } from '@mui/material';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { customerService } from '../../api/customerService';
 import type { CreateCustomerRequest } from '../../types/customer';
 
 export default function CustomerForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState<CreateCustomerRequest>({
@@ -40,7 +42,7 @@ export default function CustomerForm() {
           phoneNumber: customer.phoneNumber ?? '',
         });
       })
-      .catch(() => setError('Failed to load customer'))
+      .catch(() => setError(t('customers.failedToLoadOne')))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -69,9 +71,9 @@ export default function CustomerForm() {
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data) {
         const data = err.response.data;
-        setError(typeof data === 'string' ? data : data.error ?? data.title ?? 'Failed to save customer');
+        setError(typeof data === 'string' ? data : data.error ?? data.title ?? t('customers.failedToSave'));
       } else {
-        setError('Failed to save customer');
+        setError(t('customers.failedToSave'));
       }
     } finally {
       setSaving(false);
@@ -89,7 +91,7 @@ export default function CustomerForm() {
   return (
     <Box sx={{ maxWidth: 600 }}>
       <Typography variant="h4" gutterBottom>
-        {isEdit ? 'Edit Customer' : 'New Customer'}
+        {isEdit ? t('customers.editCustomer') : t('customers.newCustomer')}
       </Typography>
 
       {error && (
@@ -100,35 +102,35 @@ export default function CustomerForm() {
 
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="First Name"
+          label={t('customers.firstName')}
           value={form.firstName}
           onChange={handleChange('firstName')}
           required
         />
         <TextField
-          label="Last Name"
+          label={t('customers.lastName')}
           value={form.lastName}
           onChange={handleChange('lastName')}
           required
         />
         <TextField
-          label="Email"
+          label={t('customers.email')}
           type="email"
           value={form.email}
           onChange={handleChange('email')}
           required
         />
         <TextField
-          label="Phone Number"
+          label={t('customers.phoneNumber')}
           value={form.phoneNumber}
           onChange={handleChange('phoneNumber')}
         />
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button type="submit" variant="contained" disabled={saving}>
-            {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            {saving ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}
           </Button>
           <Button variant="outlined" onClick={() => navigate('/customers')}>
-            Cancel
+            {t('common.cancel')}
           </Button>
         </Box>
       </Box>

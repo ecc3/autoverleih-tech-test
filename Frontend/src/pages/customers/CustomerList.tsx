@@ -19,11 +19,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
+import { useTranslation } from 'react-i18next';
 import { customerService } from '../../api/customerService';
 import type { CustomerResponse } from '../../types/customer';
 
 export default function CustomerList() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -37,7 +39,7 @@ export default function CustomerList() {
       const data = await customerService.getAll();
       setCustomers(data);
     } catch {
-      setError('Failed to load customers');
+      setError(t('customers.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -65,28 +67,28 @@ export default function CustomerList() {
       setDeleteTarget(null);
       fetchCustomers();
     } catch {
-      setError('Failed to delete customer');
+      setError(t('customers.failedToLoad'));
     }
   };
 
   const columns: GridColDef[] = [
     {
       field: 'name',
-      headerName: 'Name',
+      headerName: t('customers.name'),
       flex: 1,
       valueGetter: (_value, row) => `${row.firstName} ${row.lastName}`,
     },
-    { field: 'email', headerName: 'Email', flex: 1 },
-    { field: 'phoneNumber', headerName: 'Phone', flex: 1 },
+    { field: 'email', headerName: t('customers.email'), flex: 1 },
+    { field: 'phoneNumber', headerName: t('customers.phone'), flex: 1 },
     {
       field: 'createdAt',
-      headerName: 'Created',
+      headerName: t('customers.created'),
       flex: 1,
       valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: t('common.actions'),
       width: 120,
       sortable: false,
       renderCell: (params) => (
@@ -105,13 +107,13 @@ export default function CustomerList() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h4">Customers</Typography>
+        <Typography variant="h4">{t('customers.title')}</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => navigate('/customers/new')}
         >
-          Add Customer
+          {t('customers.addCustomer')}
         </Button>
       </Box>
 
@@ -122,7 +124,7 @@ export default function CustomerList() {
       )}
 
       <TextField
-        placeholder="Search by name or email..."
+        placeholder={t('customers.searchPlaceholder')}
         size="small"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -140,17 +142,19 @@ export default function CustomerList() {
       />
 
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-        <DialogTitle>Delete Customer</DialogTitle>
+        <DialogTitle>{t('customers.deleteCustomer')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete {deleteTarget?.firstName} {deleteTarget?.lastName}?
-            This action cannot be undone.
+            {t('customers.deleteConfirm', {
+              firstName: deleteTarget?.firstName,
+              lastName: deleteTarget?.lastName,
+            })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button onClick={() => setDeleteTarget(null)}>{t('common.cancel')}</Button>
           <Button onClick={handleDelete} color="error">
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>

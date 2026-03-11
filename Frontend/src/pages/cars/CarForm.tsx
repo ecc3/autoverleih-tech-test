@@ -9,12 +9,14 @@ import {
   CircularProgress,
 } from "@mui/material";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import { carService } from "../../api/carService";
 import type { CreateCarRequest } from "../../types/car";
 
 export default function CarForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState<CreateCarRequest>({
@@ -40,7 +42,7 @@ export default function CarForm() {
           year: car.year,
         });
       })
-      .catch(() => setError("Failed to load car"))
+      .catch(() => setError(t("cars.failedToLoadOne")))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -70,10 +72,10 @@ export default function CarForm() {
         setError(
           typeof data === "string"
             ? data
-            : (data.error ?? data.title ?? "Failed to save car"),
+            : (data.error ?? data.title ?? t("cars.failedToSave")),
         );
       } else {
-        setError("Failed to save car");
+        setError(t("cars.failedToSave"));
       }
     } finally {
       setSaving(false);
@@ -91,7 +93,7 @@ export default function CarForm() {
   return (
     <Box sx={{ maxWidth: 600 }}>
       <Typography variant="h4" gutterBottom>
-        {isEdit ? "Edit Car" : "New Car"}
+        {isEdit ? t("cars.editCar") : t("cars.newCar")}
       </Typography>
 
       {error && (
@@ -106,25 +108,25 @@ export default function CarForm() {
         sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
         <TextField
-          label="Make"
+          label={t("cars.make")}
           value={form.make}
           onChange={handleChange("make")}
           required
         />
         <TextField
-          label="Model"
+          label={t("cars.model")}
           value={form.model}
           onChange={handleChange("model")}
           required
         />
         <TextField
-          label="License Plate"
+          label={t("cars.licensePlate")}
           value={form.licensePlate}
           onChange={handleChange("licensePlate")}
           required
         />
         <TextField
-          label="Year"
+          label={t("cars.year")}
           type="number"
           value={form.year}
           onChange={handleChange("year")}
@@ -132,10 +134,14 @@ export default function CarForm() {
         />
         <Box sx={{ display: "flex", gap: 2 }}>
           <Button type="submit" variant="contained" disabled={saving}>
-            {saving ? "Saving..." : isEdit ? "Update" : "Create"}
+            {saving
+              ? t("common.saving")
+              : isEdit
+                ? t("common.update")
+                : t("common.create")}
           </Button>
           <Button variant="outlined" onClick={() => navigate("/cars")}>
-            Cancel
+            {t("common.cancel")}
           </Button>
         </Box>
       </Box>

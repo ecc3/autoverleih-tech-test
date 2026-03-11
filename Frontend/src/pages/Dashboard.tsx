@@ -1,13 +1,16 @@
 import { Typography, Box } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
+
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Dashboard
+        {t('dashboard.title')}
       </Typography>
       <Typography color="text.secondary">
-        Welcome to Autoverleih admin. Select a section from the sidebar.
+        {t('dashboard.welcome')}
       </Typography>
     </Box>
   );

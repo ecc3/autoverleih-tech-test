@@ -22,6 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { useTranslation } from "react-i18next";
 import { rentalService } from "../../api/rentalService";
 import { customerService } from "../../api/customerService";
 import { carService } from "../../api/carService";
@@ -43,6 +44,7 @@ const statusChipProps: Record<
 
 export default function RentalList() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [rentals, setRentals] = useState<EnrichedRental[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -68,13 +70,17 @@ export default function RentalList() {
         const car = carsData.find((c) => c.id === r.carId);
         return {
           ...r,
-          customerName: cust ? `${cust.firstName} ${cust.lastName}` : "Unknown",
-          carLabel: car ? `${car.make} ${car.model}` : "Unknown",
+          customerName: cust
+            ? `${cust.firstName} ${cust.lastName}`
+            : t("common.unknown"),
+          carLabel: car
+            ? `${car.make} ${car.model}`
+            : t("common.unknown"),
         };
       });
       setRentals(enriched);
     } catch {
-      setError("Failed to load rentals");
+      setError(t("rentals.failedToLoad"));
     } finally {
       setLoading(false);
     }
@@ -115,7 +121,7 @@ export default function RentalList() {
       setReturnKm("");
       fetchData();
     } catch {
-      setError("Failed to perform action");
+      setError(t("rentals.failedToPerformAction"));
     }
   };
 
@@ -128,30 +134,30 @@ export default function RentalList() {
   };
 
   const columns: GridColDef[] = [
-    { field: "customerName", headerName: "Customer", flex: 1 },
-    { field: "carLabel", headerName: "Car", flex: 1 },
+    { field: "customerName", headerName: t("rentals.customer"), flex: 1 },
+    { field: "carLabel", headerName: t("rentals.car"), flex: 1 },
     {
       field: "startDate",
-      headerName: "Start",
+      headerName: t("rentals.start"),
       flex: 1,
       valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
     },
     {
       field: "endDate",
-      headerName: "End",
+      headerName: t("rentals.end"),
       flex: 1,
       valueFormatter: (value: string) => new Date(value).toLocaleDateString(),
     },
     {
       field: "kilometersDriven",
-      headerName: "KM Driven",
+      headerName: t("rentals.kmDriven"),
       width: 120,
       valueFormatter: (value: number | null) =>
         value != null ? `${value.toLocaleString()} km` : "\u2014",
     },
     {
       field: "status",
-      headerName: "Status",
+      headerName: t("rentals.status"),
       width: 130,
       renderCell: (params) => {
         const status = params.value as string;
@@ -161,7 +167,7 @@ export default function RentalList() {
     },
     {
       field: "actions",
-      headerName: "Actions",
+      headerName: t("common.actions"),
       width: 120,
       sortable: false,
       renderCell: (params) => {
@@ -195,13 +201,13 @@ export default function RentalList() {
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h4">Rentals</Typography>
+        <Typography variant="h4">{t("rentals.title")}</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => navigate("/rentals/new")}
         >
-          New Rental
+          {t("rentals.newRental")}
         </Button>
       </Box>
 
@@ -213,7 +219,7 @@ export default function RentalList() {
 
       <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}>
         <TextField
-          placeholder="Search by customer, car or status..."
+          placeholder={t("rentals.searchPlaceholder")}
           size="small"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -234,7 +240,7 @@ export default function RentalList() {
               size="small"
             />
           }
-          label="Active only"
+          label={t("rentals.activeOnly")}
         />
       </Box>
 
@@ -249,18 +255,26 @@ export default function RentalList() {
 
       <Dialog open={!!actionTarget} onClose={() => setActionTarget(null)}>
         <DialogTitle>
-          {isReturnDialog ? "Return Rental" : "Cancel Rental"}
+          {isReturnDialog
+            ? t("rentals.returnRental")
+            : t("rentals.cancelRental")}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
             {isReturnDialog
-              ? `${actionTarget?.rental.carLabel} rented by ${actionTarget?.rental.customerName}`
-              : `Are you sure you want to cancel the rental for ${actionTarget?.rental.carLabel} by ${actionTarget?.rental.customerName}?`}
+              ? t("rentals.returnDescription", {
+                  carLabel: actionTarget?.rental.carLabel,
+                  customerName: actionTarget?.rental.customerName,
+                })
+              : t("rentals.cancelConfirm", {
+                  carLabel: actionTarget?.rental.carLabel,
+                  customerName: actionTarget?.rental.customerName,
+                })}
           </DialogContentText>
           {isReturnDialog && (
             <TextField
               autoFocus
-              label="Kilometers Driven"
+              label={t("rentals.kilometersDriven")}
               type="number"
               fullWidth
               required
@@ -272,13 +286,17 @@ export default function RentalList() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setActionTarget(null)}>Cancel</Button>
+          <Button onClick={() => setActionTarget(null)}>
+            {t("rentals.quit")}
+          </Button>
           <Button
             onClick={handleAction}
             color={isReturnDialog ? "primary" : "error"}
             disabled={isReturnDialog && !returnKmValid}
           >
-            {isReturnDialog ? "Confirm Return" : "Yes, Cancel"}
+            {isReturnDialog
+              ? t("rentals.confirmReturn")
+              : t("rentals.yesCancel")}
           </Button>
         </DialogActions>
       </Dialog>

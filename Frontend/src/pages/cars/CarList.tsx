@@ -20,11 +20,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
+import { useTranslation } from "react-i18next";
 import { carService } from "../../api/carService";
 import type { CarResponse } from "../../types/car";
 
 export default function CarList() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [cars, setCars] = useState<CarResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -38,7 +40,7 @@ export default function CarList() {
       const data = await carService.getAll();
       setCars(data);
     } catch {
-      setError("Failed to load cars");
+      setError(t("cars.failedToLoad"));
     } finally {
       setLoading(false);
     }
@@ -66,28 +68,29 @@ export default function CarList() {
       setDeleteTarget(null);
       fetchCars();
     } catch {
-      setError("Failed to delete car");
+      setError(t("cars.failedToLoad"));
     }
   };
 
   const columns: GridColDef[] = [
-    { field: "make", headerName: "Make", flex: 1 },
-    { field: "model", headerName: "Model", flex: 1 },
-    { field: "licensePlate", headerName: "License Plate", flex: 1 },
-    { field: "year", headerName: "Year", width: 100 },
+    { field: "make", headerName: t("cars.make"), flex: 1 },
+    { field: "model", headerName: t("cars.model"), flex: 1 },
+    { field: "licensePlate", headerName: t("cars.licensePlate"), flex: 1 },
+    { field: "year", headerName: t("cars.year"), width: 100 },
     {
       field: "totalKilometers",
-      headerName: "Total KM",
+      headerName: t("cars.totalKm"),
       width: 130,
-      valueFormatter: (value: number) => `${value.toLocaleString()} km`,
+      valueFormatter: (value: number) =>
+        value != null ? `${value.toLocaleString()} km` : "0 km",
     },
     {
       field: "isAvailable",
-      headerName: "Available",
+      headerName: t("cars.available"),
       width: 130,
       renderCell: (params) => (
         <Chip
-          label={params.value ? "Available" : "Rented"}
+          label={params.value ? t("cars.available") : t("cars.rented")}
           size="small"
           color={params.value ? "success" : "error"}
         />
@@ -95,7 +98,7 @@ export default function CarList() {
     },
     {
       field: "actions",
-      headerName: "Actions",
+      headerName: t("common.actions"),
       width: 120,
       sortable: false,
       renderCell: (params) => (
@@ -117,13 +120,13 @@ export default function CarList() {
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h4">Cars</Typography>
+        <Typography variant="h4">{t("cars.title")}</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => navigate("/cars/new")}
         >
-          Add Car
+          {t("cars.addCar")}
         </Button>
       </Box>
 
@@ -134,7 +137,7 @@ export default function CarList() {
       )}
 
       <TextField
-        placeholder="Search by make, model, or plate..."
+        placeholder={t("cars.searchPlaceholder")}
         size="small"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -158,17 +161,21 @@ export default function CarList() {
       />
 
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
-        <DialogTitle>Delete Car</DialogTitle>
+        <DialogTitle>{t("cars.deleteCar")}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete {deleteTarget?.make}{" "}
-            {deleteTarget?.model}? This action cannot be undone.
+            {t("cars.deleteConfirm", {
+              make: deleteTarget?.make,
+              model: deleteTarget?.model,
+            })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button onClick={() => setDeleteTarget(null)}>
+            {t("common.cancel")}
+          </Button>
           <Button onClick={handleDelete} color="error">
-            Delete
+            {t("common.delete")}
           </Button>
         </DialogActions>
       </Dialog>

@@ -10,6 +10,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import { rentalService } from "../../api/rentalService";
 import { customerService } from "../../api/customerService";
 import { carService } from "../../api/carService";
@@ -19,6 +20,7 @@ import type { CarResponse } from "../../types/car";
 
 export default function RentalForm() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [cars, setCars] = useState<CarResponse[]>([]);
@@ -41,7 +43,7 @@ export default function RentalForm() {
         setCustomers(custs);
         setCars(carsData);
       })
-      .catch(() => setError("Failed to load customers or cars"))
+      .catch(() => setError(t("rentals.failedToLoadData")))
       .finally(() => setLoading(false));
   }, []);
 
@@ -65,10 +67,10 @@ export default function RentalForm() {
         setError(
           typeof data === "string"
             ? data
-            : (data.error ?? data.title ?? "Failed to create rental"),
+            : (data.error ?? data.title ?? t("rentals.failedToCreate")),
         );
       } else {
-        setError("Failed to create rental");
+        setError(t("rentals.failedToCreate"));
       }
     } finally {
       setSaving(false);
@@ -86,7 +88,7 @@ export default function RentalForm() {
   return (
     <Box sx={{ maxWidth: 600 }}>
       <Typography variant="h4" gutterBottom>
-        New Rental
+        {t("rentals.newRental")}
       </Typography>
 
       {error && (
@@ -102,7 +104,7 @@ export default function RentalForm() {
       >
         <TextField
           select
-          label="Customer"
+          label={t("rentals.customer")}
           value={form.customerId}
           onChange={handleChange("customerId")}
           required
@@ -115,7 +117,7 @@ export default function RentalForm() {
         </TextField>
         <TextField
           select
-          label="Car"
+          label={t("rentals.car")}
           value={form.carId}
           onChange={handleChange("carId")}
           required
@@ -127,7 +129,7 @@ export default function RentalForm() {
           ))}
         </TextField>
         <TextField
-          label="Start Date"
+          label={t("rentals.startDate")}
           type="date"
           value={form.startDate}
           onChange={handleChange("startDate")}
@@ -135,7 +137,7 @@ export default function RentalForm() {
           required
         />
         <TextField
-          label="End Date"
+          label={t("rentals.endDate")}
           type="date"
           value={form.endDate}
           onChange={handleChange("endDate")}
@@ -144,10 +146,10 @@ export default function RentalForm() {
         />
         <Box sx={{ display: "flex", gap: 2 }}>
           <Button type="submit" variant="contained" disabled={saving}>
-            {saving ? "Saving..." : "Create"}
+            {saving ? t("common.saving") : t("common.create")}
           </Button>
           <Button variant="outlined" onClick={() => navigate("/rentals")}>
-            Cancel
+            {t("common.cancel")}
           </Button>
         </Box>
       </Box>
